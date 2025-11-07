@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import Settings
 from app.db.base import Base
 from app.db.session import engine, get_async_session
 
@@ -38,15 +37,14 @@ async def root():
     return {"status": "ok"}
 
 
-@app.get("/config")
-async def show_config():
-    settings = Settings()  # type: ignore
-    return {
-        "database_url": settings.DATABASE_URL,
-        "host": settings.POSTGRES_HOST,
-        "user": settings.POSTGRES_USER,
-        "db": settings.POSTGRES_DB,
-    }
+@app.get("/qrcode")
+async def generate_base64_qrcode():
+    from app.services.image_client import generate_qr_code, image_to_base64
+
+    qr_image = generate_qr_code(data={"url": "https://google.com", "qr_size": 100})
+    base64_image = image_to_base64(qr_image)
+
+    return base64_image
 
 
 @app.post("/")
