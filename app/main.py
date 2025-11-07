@@ -15,7 +15,6 @@ import app.db.models  # type: ignore
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI) -> AsyncGenerator[None, None]:
-    settings = Settings()  # type: ignore
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
