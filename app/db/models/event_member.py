@@ -1,19 +1,16 @@
 import enum
 
-from sqlalchemy import (
-    Column,
-    Enum,
-    BigInteger,
-    ForeignKey
-)
+from sqlalchemy import Column, Enum, BigInteger, ForeignKey
 
 from sqlalchemy.orm import relationship
 
 from app.db.base import Base
 
+
 class MemberStatus(enum.Enum):
     ACCEPTED = "accepted"
     WAITED = "waited"
+
 
 class EventMember(Base):
     __tablename__ = "event_members"
@@ -25,3 +22,6 @@ class EventMember(Base):
 
     user = relationship("User", back_populates="events")
     event = relationship("Event", back_populates="members")
+
+    def __repr__(self):
+        return f"<EventMember(id={self.member_id}, user_id={self.user_id}, event_id={self.event_id}, status={self.status.value})>"

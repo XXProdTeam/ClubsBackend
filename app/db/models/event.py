@@ -26,3 +26,6 @@ class Event(Base):
     audience = Column(JSONB)
 
     members = relationship("EventMember", back_populates="event")
+
+    def __repr__(self):
+        return f"<Event(id={self.event_id}, name={self.name})>"
