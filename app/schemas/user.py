@@ -4,8 +4,8 @@ from enum import Enum
 
 class UserRole(str, Enum):
     admin = "admin"
-    user = "user"
-    organizer = "organizer"
+    student = "student"
+    applicant = "applicant"
 
 
 class UserBase(BaseModel):

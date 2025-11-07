@@ -26,7 +26,7 @@ class User(Base):
     last_name = Column(String, nullable=False)
     role = Column(Enum(UserRole), nullable=False)
 
-    events = relationship("EventMember", back_populates="user")
+    event_members = relationship("EventMember", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.user_id}, name={self.first_name} {self.last_name}, role={self.role.value})>"

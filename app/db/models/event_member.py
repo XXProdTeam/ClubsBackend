@@ -20,7 +20,7 @@ class EventMember(Base):
     event_id = Column(BigInteger, ForeignKey("events.event_id"), nullable=False)
     status = Column(Enum(MemberStatus), nullable=False)
 
-    user = relationship("User", back_populates="events")
+    user = relationship("User", back_populates="event_members")
     event = relationship("Event", back_populates="members")
 
     def __repr__(self):

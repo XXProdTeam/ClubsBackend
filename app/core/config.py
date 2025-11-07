@@ -9,7 +9,7 @@ load_dotenv()
 class Settings(BaseSettings):
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "user")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "admin")
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "cupt_db")
+    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "db")
     POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5432))
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
 

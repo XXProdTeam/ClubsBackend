@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.base import Base
 from app.db.session import engine, get_async_session
 
+from app.api import api_router
+
 import app.db.models  # type: ignore
 
 
@@ -30,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+app.include_router(api_router)
 
 
 @app.get("/status")
