@@ -32,7 +32,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/status")
 async def root():
     return {"status": "ok"}
 
@@ -47,6 +47,6 @@ async def generate_base64_qrcode():
     return base64_image
 
 
-@app.post("/")
+@app.post("/db-status")
 async def db_access(db: AsyncSession = Depends(get_async_session)):
     return {"status": "ok"}
