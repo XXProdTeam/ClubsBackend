@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 
-class UserRole(enum.Enum):
+class UserRoleEnum(str, enum.Enum):
     ADMIN = "admin"
     STUDENT = "student"
     APPLICANT = "applicant"
@@ -24,7 +24,7 @@ class User(Base):
     user_id = Column(BigInteger, primary_key=True, index=True)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
-    role = Column(Enum(UserRole), nullable=False)
+    role = Column(Enum(UserRoleEnum), nullable=True)
 
     event_members = relationship("EventMember", back_populates="user")
 

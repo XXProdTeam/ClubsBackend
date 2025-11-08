@@ -41,16 +41,6 @@ async def root():
     return {"status": "ok"}
 
 
-@app.get("/qrcode")
-async def generate_base64_qrcode():
-    from app.services.image_client import generate_qr_code, image_to_base64
-
-    qr_image = generate_qr_code(data={"url": "https://google.com", "qr_size": 100})
-    base64_image = image_to_base64(qr_image)
-
-    return base64_image
-
-
 @app.post("/db-status")
 async def db_access(db: AsyncSession = Depends(get_async_session)):
     return {"status": "ok"}

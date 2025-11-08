@@ -9,6 +9,7 @@ class UserRole(str, Enum):
 
 
 class UserBase(BaseModel):
+    user_id: int
     first_name: str
     last_name: str
     role: UserRole
@@ -19,7 +20,5 @@ class UserCreate(UserBase):
 
 
 class UserRead(UserBase):
-    user_id: int
-
     class Config:
         from_attributes = True

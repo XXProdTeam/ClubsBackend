@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional, Any
 from datetime import datetime
+from app.db.models.user import UserRoleEnum
 
 
 class EventBase(BaseModel):
@@ -9,9 +9,9 @@ class EventBase(BaseModel):
     place: str | None = None
     start_time: datetime
     end_time: datetime
-    image_id_list: list[int] | None = None
-    tag: Optional[Any] = None
-    audience: Optional[Any] = None
+    image_base64_list: list[str] | None = None
+    audience: list[UserRoleEnum] = None
+    member_limit: int
 
 
 class EventCreate(EventBase):
