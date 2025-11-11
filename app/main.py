@@ -6,12 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import Settings
 from app.db.base import Base
 from app.db.session import engine, get_async_session
 
 from app.api import api_router
 
 import app.db.models  # type: ignore
+
+from app.middlewares.MaxAuthMiddleware import MaxAuthMiddleware
 
 
 @asynccontextmanager
@@ -21,6 +24,8 @@ async def lifespan(fastapi_app: FastAPI) -> AsyncGenerator[None, None]:
     yield
     await engine.dispose()
 
+
+settings = Settings()  # type: ignore
 
 app = FastAPI(lifespan=lifespan)
 
@@ -32,6 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+app.add_middleware(MaxAuthMiddleware, bot_token=settings.BOT_TOKEN)
 
 app.include_router(api_router)
 
