@@ -18,7 +18,9 @@ class EventMember(Base):
     member_id = Column(BigInteger, primary_key=True, index=True)
     user_id = Column(BigInteger, ForeignKey("users.user_id"), nullable=False)
     event_id = Column(BigInteger, ForeignKey("events.event_id"), nullable=False)
-    status = Column(Enum(MemberStatusEnum), nullable=False)
+    status = Column(
+        Enum(MemberStatusEnum), nullable=False, default=MemberStatusEnum.WAIT
+    )
 
     user = relationship("User", back_populates="event_members")
     event = relationship("Event", back_populates="members")

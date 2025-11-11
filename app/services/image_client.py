@@ -12,7 +12,7 @@ def generate_qr_code(data: dict):
     qr.add_data(json_data)
     qr.make(fit=True)
 
-    img = qr.make_image(fill_color="white", back_color="black")
+    img = qr.make_image(fill_color="black", back_color="white")
     return img
 
 

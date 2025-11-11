@@ -4,6 +4,7 @@ from sqlalchemy import (
     BigInteger,
     Text,
     TIMESTAMP,
+    Integer,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -19,11 +20,11 @@ class Event(Base):
     name = Column(String, nullable=False)
     description = Column(Text)
     place = Column(String)
-    start_time = Column(TIMESTAMP, nullable=False)
-    end_time = Column(TIMESTAMP, nullable=False)
-    image_id_list = Column(JSONB)
-    tag = Column(JSONB)
+    start_time = Column(TIMESTAMP(timezone=True), nullable=False)
+    end_time = Column(TIMESTAMP(timezone=True), nullable=False)
+    image_base64_list = Column(JSONB)
     audience = Column(JSONB)
+    member_limit = Column(Integer, nullable=True)
 
     members = relationship("EventMember", back_populates="event")
 

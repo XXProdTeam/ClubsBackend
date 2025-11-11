@@ -1,17 +1,11 @@
 from pydantic import BaseModel
-from enum import Enum
-
-
-class MemberStatus(str, Enum):
-    joined = "joined"
-    pending = "pending"
-    rejected = "rejected"
+from app.db.models.event_member import MemberStatusEnum
 
 
 class EventMemberBase(BaseModel):
     user_id: int
     event_id: int
-    status: MemberStatus
+    status: MemberStatusEnum = MemberStatusEnum.WAIT
 
 
 class EventMemberCreate(EventMemberBase):

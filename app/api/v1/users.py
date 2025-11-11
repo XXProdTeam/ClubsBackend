@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends
 
 from app.crud.user import UserCRUD
+from app.crud.event import EventCRUD
+from app.crud.event_member import EventMemberCRUD
+
 from app.db.models.user import UserRoleEnum
+
+from app.schemas.event_member import EventMemberCreate, EventMemberRead
 from app.schemas.user import UserRead, UserCreate
+from app.schemas.event import EventRead
 
 from app.services import image_client
 
@@ -11,16 +17,35 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_async_session
 
 users_router = APIRouter(prefix="/users", tags=["users"])
+
 user_crud = UserCRUD()
+event_crud = EventCRUD()
+event_member_crud = EventMemberCRUD()
+
+
+@users_router.post("/register", status_code=201, response_model=UserCreate)
+async def register_user(
+    new_user: UserCreate, db: AsyncSession = Depends(get_async_session)
+):
+    await user_crud.create_user(db=db, user=new_user)
+    return new_user
 
 
 @users_router.get("/me", response_model=UserRead)
-async def get_user_role(user_id: int, db: AsyncSession = Depends(get_async_session)):
+async def get_user(user_id: int, db: AsyncSession = Depends(get_async_session)):
     user = await user_crud.get_user_by_id(db=db, user_id=user_id)
     return user
 
 
-@users_router.get("/me/qr")
+@users_router.get("/me/events/", response_model=list[EventRead])
+async def get_user_registered_events(
+    user_id: int, db: AsyncSession = Depends(get_async_session)
+):
+    events = await event_member_crud.get_members_events(db=db, user_id=user_id)
+    return events
+
+
+@users_router.get("/me/qr", response_model=dict[str, str])
 async def generate_base64_qrcode(
     user_id: int, db: AsyncSession = Depends(get_async_session)
 ):
@@ -32,23 +57,39 @@ async def generate_base64_qrcode(
     return {"base64_str": base64_image}
 
 
-@users_router.post("/register", status_code=201, response_model=UserCreate)
-async def register_user(
-    new_user: UserCreate, db: AsyncSession = Depends(get_async_session)
-):
-    await user_crud.create_user(db=db, user=new_user)
-    return new_user
-
-
-@users_router.post("/role/{role}")
+@users_router.post("/role/{role}", response_model=UserRead)
 async def set_user_role(
     role: UserRoleEnum, user_id: int, db: AsyncSession = Depends(get_async_session)
 ):
-    user = await user_crud.get_user_by_id(db=db, user_id=user_id)
-    user.role = role
-    await db.commit()
-    return {"user_id": user.user_id, "new_role": user.role}
+    user = await user_crud.set_user_role(db=db, user_id=user_id, role=role)
+    return user
 
-@users_router.get("/events")
-async def get_user_events(user_id: int, db: AsyncSession = Depends(get_async_session)):
-    pass
+
+@users_router.get("/events", response_model=list[EventRead])
+async def get_all_events_for_user(
+    user_id: int, db: AsyncSession = Depends(get_async_session)
+):
+    events = await event_crud.get_all_events_for_user(db=db, user_id=user_id)
+    return events
+
+
+@users_router.post(
+    "/events/{event_id}/register", status_code=201, response_model=EventMemberRead
+)
+async def register_user_for_event(
+    user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
+):
+    new_event_member = EventMemberCreate(user_id=user_id, event_id=event_id)
+    new_member = await event_member_crud.create_event_member(
+        db=db, event_member=new_event_member
+    )
+    return new_member
+
+
+@users_router.delete("/events/{event_id}/register", status_code=204)
+async def unregister_user_from_event(
+    user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
+):
+    await event_member_crud.delete_event_member(
+        db=db, user_id=user_id, event_id=event_id
+    )
