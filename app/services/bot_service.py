@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.services import send_notification, send_file
@@ -6,6 +8,8 @@ from app.crud.user import UserCRUD
 from app.crud.event import EventCRUD
 
 from app.services.calendar_service import CalendarService
+
+from maxapi.types import InputMedia
 
 
 class NotificationService:
@@ -20,7 +24,7 @@ class NotificationService:
         event = await self.event_crud.get_event_by_id(db=db, event_id=event_id)
 
         await send_notification(
-            chat_id=user.chat_id, text=f"Вы зарегистрированы на событие: {event.name}"
+            chat_id=user.chat_id, text=f"Вы зарегистрированы на событие\nСобытие: {event.name}"
         )
 
     async def unregister_event(
@@ -31,7 +35,7 @@ class NotificationService:
 
         await send_notification(
             chat_id=user.chat_id,
-            text=f"Вы отменили регистрацию на событие: {event.name}",
+            text=f"Вы отменили регистрацию на событие\nСобытие: {event.name}",
         )
 
     async def one_day_before_event(
@@ -65,7 +69,7 @@ class FileService:
         user = await self.user_crud.get_user_by_id(db=db, user_id=user_id)
         event = await self.event_crud.get_event_by_id(db=db, event_id=event_id)
 
-        calendar_path = self.calendar_service.create_event(
+        calendar_path = await self.calendar_service.create_event(
             name=event.name,
             start=event.start_time,
             end=event.end_time,
@@ -73,8 +77,12 @@ class FileService:
             location=event.place,
         )
 
+        dt = datetime.fromisoformat(str(event.start_time))
+        formatted_dt = dt.strftime("%d.%m.%Y %H:%M")
+
         await send_file(
             chat_id=user.chat_id,
-            text=f"Событие: {event.name}",
-            attachment=[calendar_path],
+            text=f"Событие: {event.name}\nГде: {event.place}\n"
+                 f"Когда: {formatted_dt}\n\nИмпортируйте его в ваш календарь",
+            attachment=[InputMedia(path=calendar_path)],
         )

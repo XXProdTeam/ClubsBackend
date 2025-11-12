@@ -37,9 +37,10 @@ async def send_notification(chat_id: int, text: str) -> None:
 
 
 async def send_file(chat_id: int, text: str, attachment: list) -> None:
+    attachments = attachment + [hide_text_payload]
     try:
         bot = Bot(token=settings.BOT_TOKEN)
-        await bot.send_message(chat_id=chat_id, text=text, attachments=attachment)
+        await bot.send_message(chat_id=chat_id, text=text, attachments=attachments)
         await bot.session.close()
     except Exception as e:
         logging.error(f"Ошибка при отправке файла пользователю в чат {chat_id}: {e}")
