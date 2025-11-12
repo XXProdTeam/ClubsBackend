@@ -3,11 +3,12 @@ from datetime import datetime
 import tempfile
 import aiofiles
 import logging
-
+from zoneinfo import ZoneInfo
 
 class CalendarService:
     def __init__(self):
         self.calendar = Calendar()
+        self.moscow_tz = ZoneInfo("Europe/Moscow")
 
     async def create_event(
         self,
@@ -19,8 +20,8 @@ class CalendarService:
     ) -> str:
         event = Event()
         event.name = name
-        event.begin = start
-        event.end = end
+        event.begin = start.replace(tzinfo=self.moscow_tz)
+        event.end = end.replace(tzinfo=self.moscow_tz)
         event.description = description
         event.location = location
         self.calendar.events.add(event)

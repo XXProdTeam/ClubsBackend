@@ -7,12 +7,16 @@ from app.crud.user import UserCRUD
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from zoneinfo import ZoneInfo
 
 class EventCRUD:
     def __init__(self):
         self.user_crud = UserCRUD()
+        self.utc_tz = ZoneInfo("UTC")
 
     async def create_event(self, db: AsyncSession, event: EventCreate) -> Event:
+        event.start_time = event.start_time.replace(tzinfo=None)
+        event.end_time = event.end_time.replace(tzinfo=None)
         new_event = Event(**event.model_dump(exclude_unset=True))
         db.add(new_event)
         await db.commit()
