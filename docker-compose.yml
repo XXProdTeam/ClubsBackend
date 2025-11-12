@@ -10,6 +10,34 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    restart: always
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    command: python -m bot.main
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      .env
+    restart: always
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m bot.scheduler
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      .env
+    restart: always
+
   db:
     image: postgres:15
     environment:

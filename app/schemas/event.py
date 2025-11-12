@@ -26,6 +26,10 @@ class EventRead(EventBase):
         from_attributes = True
 
 
+class EventMemberResponse(EventRead):
+    is_member: bool
+
+
 class EventUpdate(BaseModel):
     name: str | None = None
     description: str | None = None

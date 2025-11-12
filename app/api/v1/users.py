@@ -8,19 +8,21 @@ from app.db.models.user import UserRoleEnum
 
 from app.schemas.event_member import EventMemberCreate, EventMemberRead
 from app.schemas.user import UserRead, UserCreate
-from app.schemas.event import EventRead
+from app.schemas.event import EventRead, EventMemberResponse
 
-from app.services import image_client
+from app.services import image_client, alarm
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_async_session
+
 
 users_router = APIRouter(prefix="/users", tags=["users"])
 
 user_crud = UserCRUD()
 event_crud = EventCRUD()
 event_member_crud = EventMemberCRUD()
+notification_service = alarm.NotificationService()
 
 
 @users_router.post("/register", status_code=201, response_model=UserCreate)
@@ -86,6 +88,21 @@ async def get_all_events_for_user(
     return events
 
 
+@users_router.get("/events/{event_id}", response_model=EventMemberResponse)
+async def get_users_event_by_id(
+    user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
+):
+    event = await event_crud.get_event_by_id(db=db, event_id=event_id)
+    members = await event_member_crud.get_event_members(db=db, event_id=event_id)
+    event.num_members = len(members)
+
+    is_member = await event_member_crud.is_user_member(
+        db=db, user_id=user_id, event_id=event_id
+    )
+    event.is_member = is_member
+    return event
+
+
 @users_router.post(
     "/events/{event_id}/register", status_code=201, response_model=EventMemberRead
 )
@@ -96,6 +113,9 @@ async def register_user_for_event(
     new_member = await event_member_crud.create_event_member(
         db=db, event_member=new_event_member
     )
+    await notification_service.register_event(
+        db=db, user_id=user_id, event_id=event_id
+    )
     return new_member
 
 
@@ -104,5 +124,8 @@ async def unregister_user_from_event(
     user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
 ):
     await event_member_crud.delete_event_member(
+        db=db, user_id=user_id, event_id=event_id
+    )
+    await notification_service.unregister_event(
         db=db, user_id=user_id, event_id=event_id
     )

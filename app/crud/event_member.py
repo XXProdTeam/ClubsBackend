@@ -49,6 +49,13 @@ class EventMemberCRUD:
         await db.refresh(new_event_member)
         return new_event_member
 
+    async def is_user_member(self, db: AsyncSession, user_id: int, event_id: int):
+        query = select(EventMember).where(
+            EventMember.user_id == user_id, EventMember.event_id == event_id
+        )
+        result = await db.execute(query)
+        return result.scalar_one_or_none() is not None
+
     async def get_event_members(self, db: AsyncSession, event_id: int):
         query = select(EventMember).where(EventMember.event_id == event_id)
         result = await db.execute(query)
