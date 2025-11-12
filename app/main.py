@@ -37,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
-app.add_middleware(MaxAuthMiddleware, bot_token=settings.BOT_TOKEN)
+# app.add_middleware(MaxAuthMiddleware, bot_token=settings.BOT_TOKEN)
 
 app.include_router(api_router)
 

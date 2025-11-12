@@ -21,12 +21,19 @@ event_member_crud = EventMemberCRUD()
 @events_router.get("/", response_model=list[EventRead])
 async def get_events(db: AsyncSession = Depends(get_async_session)):
     events = await event_crud.get_all_events(db=db)
+    for event in events:
+        members = await event_member_crud.get_event_members(
+            db=db, event_id=event.event_id
+        )
+        event.num_members = len(members)
     return events
 
 
 @events_router.get("/{event_id}", response_model=EventRead)
 async def get_event_by_id(event_id: int, db: AsyncSession = Depends(get_async_session)):
     event = await event_crud.get_event_by_id(db=db, event_id=event_id)
+    members = await event_member_crud.get_event_members(db=db, event_id=event_id)
+    event.num_members = len(members)
     return event
 
 
@@ -36,6 +43,11 @@ async def create_event(
 ):
     new_event = await event_crud.create_event(db=db, event=new_event)
     return new_event
+
+
+@events_router.delete("/{event_id}", status_code=204)
+async def delete_event(event_id: int, db: AsyncSession = Depends(get_async_session)):
+    await event_crud.delete_event(db=db, event_id=event_id)
 
 
 @events_router.post("/{event_id}/register/{user_id}", response_model=EventMemberRead)

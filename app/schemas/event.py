@@ -20,6 +20,7 @@ class EventCreate(EventBase):
 
 class EventRead(EventBase):
     event_id: int
+    num_members: int
 
     class Config:
         from_attributes = True

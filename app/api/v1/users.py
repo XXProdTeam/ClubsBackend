@@ -37,12 +37,18 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_async_session)):
     return user
 
 
-@users_router.get("/me/events/", response_model=list[EventRead])
+@users_router.get("/me/events", response_model=list[EventRead])
 async def get_user_registered_events(
     user_id: int, db: AsyncSession = Depends(get_async_session)
 ):
-    events = await event_member_crud.get_members_events(db=db, user_id=user_id)
-    return events
+    event_members = await event_member_crud.get_members_events(db=db, user_id=user_id)
+    events_response = []
+    for event_member in event_members:
+        event = await event_crud.get_event_by_id(db=db, event_id=event_member.event_id)
+        members = await event_member_crud.get_event_members(db=db, event_id=event.event_id)
+        event.num_members = len(members)
+        events_response.append(event)
+    return events_response
 
 
 @users_router.get("/me/qr", response_model=dict[str, str])
@@ -70,6 +76,11 @@ async def get_all_events_for_user(
     user_id: int, db: AsyncSession = Depends(get_async_session)
 ):
     events = await event_crud.get_all_events_for_user(db=db, user_id=user_id)
+    for event in events:
+        members = await event_member_crud.get_event_members(
+            db=db, event_id=event.event_id
+        )
+        event.num_members = len(members)
     return events
 
 

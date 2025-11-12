@@ -1,14 +1,17 @@
 [project]
 name = "clubsbackend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Clubs mini-app for MAX messager"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "apscheduler>=3.11.1",
     "asyncpg>=0.30.0",
     "fastapi[standard]>=0.121.0",
     "greenlet>=3.2.4",
+    "maxapi[webhook]>=0.9.7",
     "pillow>=12.0.0",
+    "psycopg2-binary>=2.9.11",
     "pydantic-settings>=2.11.0",
     "qrcode>=8.2",
     "ruff>=0.14.4",
