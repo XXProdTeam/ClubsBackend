@@ -27,6 +27,7 @@ event_member_crud = EventMemberCRUD()
 bot_notification_service = NotificationService()
 bot_file_service = FileService()
 
+
 @users_router.post("/register", status_code=201, response_model=UserCreate)
 async def register_user(
     new_user: UserCreate, db: AsyncSession = Depends(get_async_session)
@@ -104,13 +105,13 @@ async def get_users_event_by_id(
     event.is_member = is_member
     return event
 
+
 @users_router.get("/events/{event_id}/ics")
 async def get_ics_for_event(
     user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
 ):
-    await bot_file_service.send_ics(
-        db=db, user_id=user_id, event_id=event_id
-    )
+    await bot_file_service.send_ics(db=db, user_id=user_id, event_id=event_id)
+
 
 @users_router.post(
     "/events/{event_id}/register", status_code=201, response_model=EventMemberRead
@@ -122,7 +123,9 @@ async def register_user_for_event(
     new_member = await event_member_crud.create_event_member(
         db=db, event_member=new_event_member
     )
-    await bot_notification_service.register_event(db=db, user_id=user_id, event_id=event_id)
+    await bot_notification_service.register_event(
+        db=db, user_id=user_id, event_id=event_id
+    )
     return new_member
 
 

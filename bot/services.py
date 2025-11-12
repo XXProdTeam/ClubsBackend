@@ -35,14 +35,11 @@ async def send_notification(chat_id: int, text: str) -> None:
             f"Ошибка при отправке уведомления пользователю в чат {chat_id}: {e}"
         )
 
+
 async def send_file(chat_id: int, text: str, attachment: list) -> None:
     try:
         bot = Bot(token=settings.BOT_TOKEN)
-        await bot.send_message(
-            chat_id=chat_id, text=text, attachments=attachment
-        )
+        await bot.send_message(chat_id=chat_id, text=text, attachments=attachment)
         await bot.session.close()
     except Exception as e:
-        logging.error(
-            f"Ошибка при отправке файла пользователю в чат {chat_id}: {e}"
-        )
+        logging.error(f"Ошибка при отправке файла пользователю в чат {chat_id}: {e}")
