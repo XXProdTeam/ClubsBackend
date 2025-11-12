@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from maxapi import Bot, Dispatcher, F
+from maxapi import Bot, Dispatcher
 from maxapi.filters.command import Command
 from maxapi.types import (
     OpenAppButton,
@@ -10,8 +10,6 @@ from maxapi.types import (
     BotStarted,
     MessageCallback,
 )
-
-from bot.services import send_notification
 
 from app.db.session import get_async_session
 from app.crud.user import UserCRUD

@@ -9,6 +9,7 @@ dependencies = [
     "asyncpg>=0.30.0",
     "fastapi[standard]>=0.121.0",
     "greenlet>=3.2.4",
+    "ics>=0.7.2",
     "maxapi[webhook]>=0.9.7",
     "pillow>=12.0.0",
     "psycopg2-binary>=2.9.11",

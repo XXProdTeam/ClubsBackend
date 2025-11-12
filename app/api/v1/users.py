@@ -1,20 +1,21 @@
 from fastapi import APIRouter, Depends
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.crud.user import UserCRUD
 from app.crud.event import EventCRUD
 from app.crud.event_member import EventMemberCRUD
 
 from app.db.models.user import UserRoleEnum
 
+from app.db.session import get_async_session
+
 from app.schemas.event_member import EventMemberCreate, EventMemberRead
 from app.schemas.user import UserRead, UserCreate
 from app.schemas.event import EventRead, EventMemberResponse
 
-from app.services import image_client, alarm
-
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.db.session import get_async_session
+from app.services.image_client import generate_qr_code, image_to_base64
+from app.services.bot_service import NotificationService, FileService
 
 
 users_router = APIRouter(prefix="/users", tags=["users"])
@@ -22,8 +23,9 @@ users_router = APIRouter(prefix="/users", tags=["users"])
 user_crud = UserCRUD()
 event_crud = EventCRUD()
 event_member_crud = EventMemberCRUD()
-notification_service = alarm.NotificationService()
 
+bot_notification_service = NotificationService()
+bot_file_service = FileService()
 
 @users_router.post("/register", status_code=201, response_model=UserCreate)
 async def register_user(
@@ -61,8 +63,8 @@ async def generate_base64_qrcode(
 ):
     user = await user_crud.get_user_by_id(db=db, user_id=user_id)
     user_data = UserRead.model_validate(user).model_dump()
-    qr_image = image_client.generate_qr_code(data=user_data)
-    base64_image = image_client.image_to_base64(qr_image)
+    qr_image = generate_qr_code(data=user_data)
+    base64_image = image_to_base64(qr_image)
 
     return {"base64_str": base64_image}
 
@@ -102,6 +104,13 @@ async def get_users_event_by_id(
     event.is_member = is_member
     return event
 
+@users_router.get("/events/{event_id}/ics")
+async def get_ics_for_event(
+    user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
+):
+    await bot_file_service.send_ics(
+        db=db, user_id=user_id, event_id=event_id
+    )
 
 @users_router.post(
     "/events/{event_id}/register", status_code=201, response_model=EventMemberRead
@@ -113,9 +122,7 @@ async def register_user_for_event(
     new_member = await event_member_crud.create_event_member(
         db=db, event_member=new_event_member
     )
-    await notification_service.register_event(
-        db=db, user_id=user_id, event_id=event_id
-    )
+    await bot_notification_service.register_event(db=db, user_id=user_id, event_id=event_id)
     return new_member
 
 
@@ -126,6 +133,6 @@ async def unregister_user_from_event(
     await event_member_crud.delete_event_member(
         db=db, user_id=user_id, event_id=event_id
     )
-    await notification_service.unregister_event(
+    await bot_notification_service.unregister_event(
         db=db, user_id=user_id, event_id=event_id
     )
