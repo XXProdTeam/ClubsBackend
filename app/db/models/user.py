@@ -25,6 +25,7 @@ class User(Base):
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     role = Column(Enum(UserRoleEnum), nullable=True)
+    chat_id = Column(BigInteger, nullable=False)
 
     event_members = relationship("EventMember", back_populates="user")
 

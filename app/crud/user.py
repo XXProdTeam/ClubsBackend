@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from app.db.models.user import User
 
 from app.schemas.user import UserCreate
@@ -16,7 +18,15 @@ class UserCRUD:
         result = await db.execute(query)
         return get_or_404(result.scalar_one_or_none(), detail="User not found")
 
+    async def get_user_by_id_raw(self, db: AsyncSession, user_id: int) -> User:
+        query = select(User).where(User.user_id == user_id)
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
+
     async def create_user(self, db: AsyncSession, user: UserCreate) -> User:
+        existing_user = await self.get_user_by_id_raw(db, user.user_id)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User already exists")
         new_user = User(
             **user.model_dump(exclude_unset=True),
         )

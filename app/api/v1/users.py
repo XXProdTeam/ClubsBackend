@@ -45,7 +45,9 @@ async def get_user_registered_events(
     events_response = []
     for event_member in event_members:
         event = await event_crud.get_event_by_id(db=db, event_id=event_member.event_id)
-        members = await event_member_crud.get_event_members(db=db, event_id=event.event_id)
+        members = await event_member_crud.get_event_members(
+            db=db, event_id=event.event_id
+        )
         event.num_members = len(members)
         events_response.append(event)
     return events_response

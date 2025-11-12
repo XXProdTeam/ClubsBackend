@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from app.crud.event import EventCRUD
 from app.crud.event_member import EventMemberCRUD
 
-from app.schemas.event import EventRead, EventCreate
+from app.schemas.event import EventRead, EventCreate, EventUpdate, EventBase
 from app.schemas.event_member import EventMemberRead
 
 from app.db.models.event_member import MemberStatusEnum
@@ -37,7 +37,7 @@ async def get_event_by_id(event_id: int, db: AsyncSession = Depends(get_async_se
     return event
 
 
-@events_router.post("/", response_model=EventRead)
+@events_router.post("/", response_model=EventCreate)
 async def create_event(
     new_event: EventCreate, db: AsyncSession = Depends(get_async_session)
 ):
@@ -48,6 +48,18 @@ async def create_event(
 @events_router.delete("/{event_id}", status_code=204)
 async def delete_event(event_id: int, db: AsyncSession = Depends(get_async_session)):
     await event_crud.delete_event(db=db, event_id=event_id)
+
+
+@events_router.patch("/{event_id}", response_model=EventBase)
+async def update_event(
+    event_id: int,
+    event_update: EventUpdate,
+    db: AsyncSession = Depends(get_async_session),
+):
+    updated_event = await event_crud.update_event(
+        db=db, event_id=event_id, event_update=event_update
+    )
+    return updated_event
 
 
 @events_router.post("/{event_id}/register/{user_id}", response_model=EventMemberRead)
