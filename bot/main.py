@@ -9,6 +9,7 @@ from maxapi.types import (
     ButtonsPayload,
     BotStarted,
     MessageCallback,
+    BotCommand,
 )
 
 from app.db.session import get_async_session
@@ -43,8 +44,21 @@ async def startup(event: BotStarted | MessageCreated):
     )
 
 
+async def create_user(new_user: UserCreate):
+    async for db in get_async_session():
+        if not await user_crud.get_user_by_id_raw(db, new_user.user_id):
+            await user_crud.create_user(db=db, user=new_user)
+        break
+
+
 @dp.bot_started()
 async def bot_started(event: BotStarted):
+    await event.bot.set_my_commands(
+        BotCommand(name="start", description="Регистрация пользователя")
+    )
+    logging.info(
+        f"Пользователь {event.message.sender.user_id} - {event.message.sender.first_name} {event.message.sender.last_name} запустил бота"
+    )
     new_user = UserCreate(
         user_id=event.user.user_id,
         first_name=event.user.first_name,
@@ -52,21 +66,33 @@ async def bot_started(event: BotStarted):
         chat_id=event.chat_id,
     )
 
-    async for db in get_async_session():
-        if not await user_crud.get_user_by_id_raw(db, new_user.user_id):
-            await user_crud.create_user(db=db, user=new_user)
-        break
+    await create_user(new_user=new_user)
 
     await startup(event=event)
 
 
 @dp.message_created(Command("start"))
 async def start(event: MessageCreated):
+    logging.info(
+        f"Пользователь {event.message.sender.user_id} - {event.message.sender.first_name} {event.message.sender.last_name} запустил команду /start"
+    )
+    new_user = UserCreate(
+        user_id=event.message.sender.user_id,
+        first_name=event.message.sender.first_name,
+        last_name=event.message.sender.last_name,
+        chat_id=event.chat.chat_id,
+    )
+
+    await create_user(new_user=new_user)
+
     await startup(event=event)
 
 
 @dp.message_callback()
 async def message_callback(callback: MessageCallback):
+    logging.info(
+        f"Пользователь {callback.message.sender.user_id} - {callback.message.sender.first_name} {callback.message.sender.last_name} нажал кнопку `скрыть сообщение`"
+    )
     await callback.bot.delete_message(message_id=callback.message.body.mid)
 
 
