@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app.db.models.event import Event
 
 from app.schemas.event import EventCreate, EventUpdate
@@ -8,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from zoneinfo import ZoneInfo
+
 
 class EventCRUD:
     def __init__(self):
@@ -24,17 +27,25 @@ class EventCRUD:
         return new_event
 
     async def get_all_events_for_user(
-        self, db: AsyncSession, user_id: int
+        self, db: AsyncSession, user_id: int, actual: bool = True
     ) -> list[Event]:
         user = await self.user_crud.get_user_by_id(db, user_id)
-        events = select(Event).where(Event.audience.contains([user.role]))
+        events = select(Event).where(
+            Event.audience.contains([user.role]), Event.start_time >= datetime.now()
+        )
+        if actual:
+            events = events.order_by(Event.start_time)
         result = await db.execute(events)
         return get_or_404(
             result.scalars().all(), detail="No events found for this user"
         )
 
-    async def get_all_events(self, db: AsyncSession) -> list[Event]:
-        events = select(Event)
+    async def get_all_events(
+        self, db: AsyncSession, actual: bool = True
+    ) -> list[Event]:
+        events = select(Event).where(Event.start_time >= datetime.now())
+        if actual:
+            events = events.order_by(Event.start_time)
         result = await db.execute(events)
         return get_or_404(result.scalars().all(), detail="No events found")
 

@@ -5,6 +5,7 @@ import aiofiles
 import logging
 from zoneinfo import ZoneInfo
 
+
 class CalendarService:
     def __init__(self):
         self.calendar = Calendar()

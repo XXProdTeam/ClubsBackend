@@ -19,8 +19,10 @@ event_member_crud = EventMemberCRUD()
 
 
 @events_router.get("/", response_model=list[EventRead])
-async def get_events(db: AsyncSession = Depends(get_async_session)):
-    events = await event_crud.get_all_events(db=db)
+async def get_events(
+    is_actual: bool = True, db: AsyncSession = Depends(get_async_session)
+):
+    events = await event_crud.get_all_events(db=db, actual=is_actual)
     for event in events:
         members = await event_member_crud.get_event_members(
             db=db, event_id=event.event_id

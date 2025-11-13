@@ -24,7 +24,8 @@ class NotificationService:
         event = await self.event_crud.get_event_by_id(db=db, event_id=event_id)
 
         await send_notification(
-            chat_id=user.chat_id, text=f"Вы зарегистрированы на событие\nСобытие: {event.name}"
+            chat_id=user.chat_id,
+            text=f"Вы зарегистрированы на событие\nСобытие: {event.name}",
         )
 
     async def unregister_event(
@@ -83,6 +84,6 @@ class FileService:
         await send_file(
             chat_id=user.chat_id,
             text=f"Событие: {event.name}\nГде: {event.place}\n"
-                 f"Когда: {formatted_dt}\n\nИмпортируйте его в ваш календарь",
+            f"Когда: {formatted_dt}\n\nИмпортируйте его в ваш календарь",
             attachment=[InputMedia(path=calendar_path)],
         )
