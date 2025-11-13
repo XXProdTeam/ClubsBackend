@@ -14,8 +14,10 @@ from app.schemas.event_member import EventMemberCreate, EventMemberRead
 from app.schemas.user import UserRead, UserCreate
 from app.schemas.event import EventRead, EventMemberResponse
 
-from app.services.image_client import generate_qr_code, image_to_base64
-from app.services.bot_service import NotificationService, FileService
+from app.services.image_service import generate_qr_code, image_to_base64
+from app.services.bot_notification_service import NotificationService
+from app.services.bot_file_service import FileService
+from app.services.scheduler_service import ScheduleService
 
 
 users_router = APIRouter(prefix="/users", tags=["users"])
@@ -26,6 +28,7 @@ event_member_crud = EventMemberCRUD()
 
 bot_notification_service = NotificationService()
 bot_file_service = FileService()
+schedule_service = ScheduleService()
 
 
 @users_router.post("/register", status_code=201, response_model=UserCreate)
@@ -124,11 +127,21 @@ async def register_user_for_event(
     user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
 ):
     new_event_member = EventMemberCreate(user_id=user_id, event_id=event_id)
+    event = await event_crud.get_event_by_id(db=db, event_id=event_id)
     new_member = await event_member_crud.create_event_member(
         db=db, event_member=new_event_member
     )
     await bot_notification_service.register_event(
         db=db, user_id=user_id, event_id=event_id
+    )
+    schedule_service.schedule_reminder_one_day_before(
+        event_id=event_id, user_id=user_id, remind_time=event.start_time
+    )
+
+    schedule_service.schedule_reminder_one_hour_before(
+        event_id=event_id,
+        user_id=user_id,
+        remind_time=event.start_time,
     )
     return new_member
 

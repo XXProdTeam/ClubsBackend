@@ -20,15 +20,13 @@ async def get_db_session():
             await session.close()
 
 
-async def send_notification(chat_id: int, text: str) -> None:
+async def send_notification(chat_id: int, text: str, attachments: list) -> None:
     """
     Асинхронно отправляет уведомление пользователю от имени бота.
     """
     try:
         bot = Bot(token=settings.BOT_TOKEN)
-        await bot.send_message(
-            chat_id=chat_id, text=text, attachments=[hide_text_payload]
-        )
+        await bot.send_message(chat_id=chat_id, text=text, attachments=attachments)
         await bot.session.close()
     except Exception as e:
         logging.error(

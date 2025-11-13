@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from typing import AsyncGenerator
+from zoneinfo import ZoneInfo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,6 +9,9 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import Settings
+
+from app.services.scheduler_service import scheduler
+
 from app.db.base import Base
 from app.db.session import engine, get_async_session
 
@@ -19,9 +24,11 @@ from app.middlewares.MaxAuthMiddleware import MaxAuthMiddleware
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI) -> AsyncGenerator[None, None]:
+    scheduler.start()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+    scheduler.shutdown()
     await engine.dispose()
 
 

@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 class EventCRUD:
     def __init__(self):
         self.user_crud = UserCRUD()
-        self.utc_tz = ZoneInfo("UTC")
+        self.moscow_tz = ZoneInfo("Europe/Moscow")
 
     async def create_event(self, db: AsyncSession, event: EventCreate) -> Event:
         event.start_time = event.start_time.replace(tzinfo=None)
@@ -31,7 +31,8 @@ class EventCRUD:
     ) -> list[Event]:
         user = await self.user_crud.get_user_by_id(db, user_id)
         events = select(Event).where(
-            Event.audience.contains([user.role]), Event.start_time >= datetime.now()
+            Event.audience.contains([user.role]),
+            Event.start_time >= datetime.now(tz=self.moscow_tz).replace(tzinfo=None),
         )
         if actual:
             events = events.order_by(Event.start_time)
@@ -43,7 +44,9 @@ class EventCRUD:
     async def get_all_events(
         self, db: AsyncSession, actual: bool = True
     ) -> list[Event]:
-        events = select(Event).where(Event.start_time >= datetime.now())
+        events = select(Event).where(
+            Event.start_time >= datetime.now(tz=self.moscow_tz).replace(tzinfo=None),
+        )
         if actual:
             events = events.order_by(Event.start_time)
         result = await db.execute(events)

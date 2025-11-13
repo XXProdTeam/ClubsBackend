@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.event import EventCRUD
 from app.crud.event_member import EventMemberCRUD
@@ -8,14 +9,17 @@ from app.schemas.event_member import EventMemberRead
 
 from app.db.models.event_member import MemberStatusEnum
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.db.session import get_async_session
+
+from app.services.scheduler_service import ScheduleService
+
 
 events_router = APIRouter(prefix="/events", tags=["events"])
 
 event_crud = EventCRUD()
 event_member_crud = EventMemberCRUD()
+
+schedule_service = ScheduleService()
 
 
 @events_router.get("/", response_model=list[EventRead])
@@ -68,9 +72,22 @@ async def update_event(
 async def register_user_for_event(
     event_id: int, user_id: int, db: AsyncSession = Depends(get_async_session)
 ):
+    existing_member = await event_member_crud.get_event_member(
+        db=db, event_id=event_id, user_id=user_id
+    )
+    if existing_member.status == MemberStatusEnum.ACCEPT:
+        raise HTTPException(status_code=400, detail="User is already registered")
+
     member = await event_member_crud.set_member_status(
         db=db, event_id=event_id, user_id=user_id, status=MemberStatusEnum.ACCEPT
     )
+
+    event = await event_crud.get_event_by_id(db=db, event_id=event_id)
+    if event.feedback_link:
+        schedule_service.schedule_reminder_feedback_link(
+            event_id=event_id, user_id=user_id, remind_time=event.end_time
+        )
+
     return member
 
 

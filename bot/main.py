@@ -10,6 +10,7 @@ from maxapi.types import (
     BotStarted,
     MessageCallback,
     BotCommand,
+    LinkButton,
 )
 
 from app.db.session import get_async_session
