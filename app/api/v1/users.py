@@ -59,7 +59,7 @@ async def get_user_registered_events(
         event.num_members = len(members)
         events_response.append(event)
     if is_actual:
-        events_response.sort(key=lambda x: x.start_date)
+        events_response.sort(key=lambda x: x.start_time)
     return events_response
 
 

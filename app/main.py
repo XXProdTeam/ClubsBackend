@@ -1,7 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
 from typing import AsyncGenerator
-from zoneinfo import ZoneInfo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,7 +17,7 @@ from app.api import api_router
 
 import app.db.models  # type: ignore
 
-from app.middlewares.MaxAuthMiddleware import MaxAuthMiddleware
+# from app.middlewares.MaxAuthMiddleware import MaxAuthMiddleware
 
 
 @asynccontextmanager

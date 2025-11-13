@@ -9,7 +9,7 @@ from app.crud.event import EventCRUD
 
 from app.services.calendar_service import CalendarService
 
-from maxapi.types import InputMedia, LinkButton, ButtonsPayload
+from maxapi.types import InputMedia
 
 
 class FileService:
