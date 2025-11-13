@@ -58,7 +58,7 @@ async def bot_started(event: BotStarted):
         BotCommand(name="start", description="Регистрация пользователя")
     )
     logging.info(
-        f"Пользователь {event.message.sender.user_id} - {event.message.sender.first_name} {event.message.sender.last_name} запустил бота"
+        f"Пользователь {event.user.user_id} - {event.user.user_id} {event.user.user_id} запустил бота"
     )
     new_user = UserCreate(
         user_id=event.user.user_id,
