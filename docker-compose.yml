@@ -1,10 +1,22 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - app
+    restart: always
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
     depends_on:
       db:
         condition: service_healthy
@@ -16,14 +28,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
     command: python -m bot.main
     depends_on:
       db:
         condition: service_healthy
-    env_file:
-      .env
+    env_file: .env
     restart: always
 
   db:
