@@ -9,9 +9,6 @@ services:
       - ./nginx/conf:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/letsencrypt
       - ./nginx/ssl-data:/data/letsencrypt
-    depends_on:
-      api:
-        condition: service_started
     restart: always
 
   certbot:
