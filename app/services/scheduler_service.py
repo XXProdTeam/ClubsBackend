@@ -51,8 +51,8 @@ class ScheduleService:
     ):
         """Создаёт задачу за 1 день до начала события."""
         remind_time = remind_time.replace(tzinfo=ZoneInfo("Europe/Moscow"))
-        remind_time = remind_time - timedelta(seconds=10)
-        # remind_time = remind_time - timedelta(days=1)
+        # remind_time = remind_time - timedelta(seconds=10) # For testing
+        remind_time = remind_time - timedelta(days=1)
 
         self.scheduler.add_job(
             func=send_one_day_before_event,
@@ -68,8 +68,8 @@ class ScheduleService:
     ):
         """Создаёт задачу за 1 час до начала события."""
         remind_time = remind_time.replace(tzinfo=ZoneInfo("Europe/Moscow"))
-        remind_time = remind_time - timedelta(seconds=5)
-        # remind_time = remind_time - timedelta(hours=1)
+        # remind_time = remind_time - timedelta(seconds=5) # For testing
+        remind_time = remind_time - timedelta(hours=1)
 
         self.scheduler.add_job(
             func=send_one_hour_before_event,
@@ -85,8 +85,8 @@ class ScheduleService:
     ):
         """Создаёт задачу за 1 день до начала события."""
         remind_time = remind_time.replace(tzinfo=ZoneInfo("Europe/Moscow"))
-        remind_time = remind_time + timedelta(seconds=1)
-        # remind_time = remind_time + timedelta(hours=1)
+        # remind_time = remind_time + timedelta(seconds=1) # For testing
+        remind_time = remind_time + timedelta(hours=1)
 
         self.scheduler.add_job(
             func=send_feedback_link,
