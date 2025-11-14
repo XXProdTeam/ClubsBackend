@@ -41,3 +41,5 @@ class EventUpdate(BaseModel):
     image_base64_list: list[str] | None = None
     audience: list[UserRoleEnum] | None = None
     member_limit: int | None = None
+    feedback_text: str | None = None
+    feedback_link: str | None = None

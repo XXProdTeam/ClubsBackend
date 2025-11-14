@@ -127,10 +127,14 @@ async def register_user_for_event(
     user_id: int, event_id: int, db: AsyncSession = Depends(get_async_session)
 ):
     new_event_member = EventMemberCreate(user_id=user_id, event_id=event_id)
+    user = await user_crud.get_user_by_id(db=db, user_id=user_id)
     event = await event_crud.get_event_by_id(db=db, event_id=event_id)
     new_member = await event_member_crud.create_event_member(
         db=db, event_member=new_event_member
     )
+    new_member.first_name = user.first_name
+    new_member.last_name = user.last_name
+
     await bot_notification_service.register_event(
         db=db, user_id=user_id, event_id=event_id
     )

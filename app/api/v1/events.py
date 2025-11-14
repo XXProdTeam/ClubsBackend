@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.event import EventCRUD
 from app.crud.event_member import EventMemberCRUD
+from app.crud.user import UserCRUD
 
 from app.schemas.event import EventRead, EventCreate, EventUpdate, EventBase
 from app.schemas.event_member import EventMemberRead
@@ -16,6 +17,7 @@ from app.services.scheduler_service import ScheduleService
 
 events_router = APIRouter(prefix="/events", tags=["events"])
 
+user_crud = UserCRUD()
 event_crud = EventCRUD()
 event_member_crud = EventMemberCRUD()
 
@@ -81,13 +83,14 @@ async def register_user_for_event(
     member = await event_member_crud.set_member_status(
         db=db, event_id=event_id, user_id=user_id, status=MemberStatusEnum.ACCEPT
     )
-
+    user = await user_crud.get_user_by_id(db=db, user_id=user_id)
     event = await event_crud.get_event_by_id(db=db, event_id=event_id)
     if event.feedback_link:
         schedule_service.schedule_reminder_feedback_link(
             event_id=event_id, user_id=user_id, remind_time=event.end_time
         )
-
+    member.first_name = user.first_name
+    member.last_name = user.last_name
     return member
 
 
@@ -95,5 +98,11 @@ async def register_user_for_event(
 async def get_event_members(
     event_id: int, db: AsyncSession = Depends(get_async_session)
 ):
+    response_members = []
     members = await event_member_crud.get_event_members(db=db, event_id=event_id)
-    return members
+    for member in members:
+        user = await user_crud.get_user_by_id(db=db, user_id=member.user_id)
+        member.first_name = user.first_name
+        member.last_name = user.last_name
+        response_members.append(member)
+    return response_members

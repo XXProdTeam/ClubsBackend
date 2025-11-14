@@ -14,6 +14,8 @@ class EventMemberCreate(EventMemberBase):
 
 class EventMemberRead(EventMemberBase):
     member_id: int
+    first_name: str
+    last_name: str
 
     class Config:
         from_attributes = True
