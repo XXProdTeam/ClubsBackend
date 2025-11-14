@@ -2,8 +2,6 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx
-    profiles:
-      - prod
     ports:
       - "80:80"
       - "443:443"
@@ -19,8 +17,6 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot
-    profiles:
-      - prod
     volumes:
       - ./nginx/ssl:/etc/letsencrypt
       - ./nginx/ssl-data:/data/letsencrypt
