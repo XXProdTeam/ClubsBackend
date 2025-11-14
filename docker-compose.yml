@@ -1,16 +1,4 @@
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
-    depends_on:
-      - app
-    restart: always
-
   app:
     build:
       context: .
