@@ -9,5 +9,8 @@ up:
 up-at:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
 
+down-tot:
+	sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+
 down:
 	docker compose down

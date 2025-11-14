@@ -7,6 +7,7 @@ from io import BytesIO
 
 def generate_qr_code(data: dict):
     json_data = json.dumps(data, ensure_ascii=False)
+    json_data = json_data.replace('"', "'")
 
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(json_data)
