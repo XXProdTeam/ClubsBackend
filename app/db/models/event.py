@@ -25,6 +25,7 @@ class Event(Base):
     image_base64_list = Column(JSONB)
     audience = Column(JSONB)
     member_limit = Column(Integer, nullable=True)
+    feedback_text = Column(String, nullable=True)
     feedback_link = Column(String, nullable=True)
 
     members = relationship("EventMember", back_populates="event")

@@ -12,6 +12,7 @@ class EventBase(BaseModel):
     image_base64_list: list[str] | None = None
     audience: list[UserRoleEnum]
     member_limit: int = Field(..., ge=1)
+    feedback_text: str | None = None
     feedback_link: str | None = None
 
 

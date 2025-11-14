@@ -83,7 +83,6 @@ class NotificationService:
 
         await send_notification(
             chat_id=user.chat_id,
-            text=f"Спасибо за участие в мероприятии – {event.name}!\n\n"
-            f"Ответьте на пару вопросов, чтобы сделать будущие мероприятия лучше.",
+            text=event.feedback_text,
             attachments=[button_payload],
         )
